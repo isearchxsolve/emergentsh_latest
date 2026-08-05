@@ -1,0 +1,34 @@
+{
+  "name": "emergent-sh-clone",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "services/*",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:sandbox\" \"npm run dev:streamer\" \"npm run dev:vfs\" \"npm run dev:mcp\" \"npm run dev:frontend\"",
+    "dev:sandbox": "npm run dev --workspace=services/sandbox",
+    "dev:streamer": "npm run dev --workspace=services/streamer",
+    "dev:vfs": "npm run dev --workspace=services/vfs",
+    "dev:mcp": "npm run dev --workspace=services/mcp",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "test": "npm run test --workspaces",
+    "test:sandbox": "npm run test --workspace=services/sandbox",
+    "test:streamer": "npm run test --workspace=services/streamer",
+    "test:vfs": "npm run test --workspace=services/vfs",
+    "test:mcp": "npm run test --workspace=services/mcp",
+    "test:frontend": "npm run test --workspace=frontend",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0",
+    "@types/node": "^20.12.12"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
