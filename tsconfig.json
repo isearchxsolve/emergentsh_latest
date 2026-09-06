@@ -1,4 +1,4 @@
-{
+﻿{
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
@@ -21,5 +21,6 @@
       "@emergent/*": ["services/*/src", "frontend/src"]
     }
   },
+  "include": ["services/*/src", "frontend/src", "frontend/next-env.d.ts"],
   "exclude": ["node_modules", "dist", "build", ".turbo"]
 }

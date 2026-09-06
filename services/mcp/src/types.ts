@@ -1,153 +1,117 @@
-/**
- * Core types for the MCP (Model Context Protocol) Server
- * Enables external LLMs to interface with the Emergent.sh clone
- */
+﻿export interface MCPConfig {
+  port: number;
+  host?: string;
+  path?: string;
+  allowedOrigins?: string[];
+}
+
+export interface MCPRequest {
+  jsonrpc: "2.0";
+  id: string | number;
+  method: string;
+  params?: unknown;
+}
+
+export interface MCPResponse {
+  jsonrpc: "2.0";
+  id: string | number;
+  result?: unknown;
+  error?: MCPError;
+}
+
+export interface MCPError {
+  code: number;
+  message: string;
+  data?: unknown;
+}
 
 export interface MCPTool {
-  readonly name: string;
-  readonly description: string;
-  readonly inputSchema: {
-    readonly type: "object";
-    readonly properties: Record<string, unknown>;
-    readonly required?: readonly string[];
-  };
+  name: string;
+  description: string;
+  inputSchema: Record<string, unknown>;
 }
 
 export interface MCPResource {
-  readonly uri: string;
-  readonly name: string;
-  readonly description?: string;
-  readonly mimeType?: string;
+  uri: string;
+  name: string;
+  description?: string;
+  mimeType?: string;
 }
 
-export interface MCPResourceContent {
-  readonly uri: string;
-  readonly mimeType: string;
-  readonly text?: string;
-  readonly blob?: string; // base64 encoded
+export interface MCPPrompt {
+  name: string;
+  description: string;
+  arguments?: MCPPromptArgument[];
 }
 
-export interface MCPCallToolRequest {
-  readonly name: string;
-  readonly arguments: Record<string, unknown>;
-}
-
-export interface MCPCallToolResult {
-  readonly content: Array<{
-    readonly type: "text" | "image" | "resource";
-    readonly text?: string;
-    readonly data?: string;
-    readonly mimeType?: string;
-  }>;
-  readonly isError?: boolean;
-}
-
-export interface MCPListResourcesRequest {
-  readonly cursor?: string;
-}
-
-export interface MCPListResourcesResult {
-  readonly resources: MCPResource[];
-  readonly nextCursor?: string;
-}
-
-export interface MCPReadResourceRequest {
-  readonly uri: string;
-}
-
-export interface MCPListToolsResult {
-  readonly tools: MCPTool[];
-}
-
-export interface MCPSession {
-  readonly id: string;
-  readonly clientId: string;
-  readonly capabilities: MCPClientCapabilities;
-  readonly createdAt: Date;
-  readonly lastActivity: Date;
-}
-
-export interface MCPClientCapabilities {
-  readonly roots?: {
-    readonly listChanged?: boolean;
-  };
-  readonly sampling?: {};
-  readonly elicitation?: {};
+export interface MCPPromptArgument {
+  name: string;
+  description: string;
+  required?: boolean;
 }
 
 export interface MCPServerCapabilities {
-  readonly tools?: {
-    readonly listChanged?: boolean;
-  };
-  readonly resources?: {
-    readonly subscribe?: boolean;
-    readonly listChanged?: boolean;
-  };
-  readonly prompts?: {
-    readonly listChanged?: boolean;
-  };
-  readonly logging?: {};
+  tools?: boolean;
+  resources?: boolean;
+  prompts?: boolean;
+  logging?: boolean;
 }
 
-export interface MCPMessage {
-  readonly jsonrpc: "2.0";
-  readonly id?: string | number;
-  readonly method?: string;
-  readonly params?: Record<string, unknown>;
-  readonly result?: unknown;
-  readonly error?: {
-    readonly code: number;
-    readonly message: string;
-    readonly data?: unknown;
+export interface MCPClientCapabilities {
+  roots?: boolean;
+  sampling?: boolean;
+}
+
+export interface MCPInitializeParams {
+  protocolVersion: string;
+  capabilities: MCPClientCapabilities;
+  clientInfo: {
+    name: string;
+    version: string;
   };
 }
 
-export interface MCPNotification {
-  readonly jsonrpc: "2.0";
-  readonly method: string;
-  readonly params?: Record<string, unknown>;
+export interface MCPInitializeResult {
+  protocolVersion: string;
+  capabilities: MCPServerCapabilities;
+  serverInfo: {
+    name: string;
+    version: string;
+  };
 }
 
-export interface MCPConfig {
-  readonly port: number;
-  readonly host: string;
-  readonly path: string;
-  readonly allowedOrigins: readonly string[];
-  readonly sessionTimeout: number;
+export interface MCPServer {
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  
+  // Tool registration
+  registerTool(tool: MCPTool, handler: (params: unknown) => Promise<unknown>): void;
+  unregisterTool(name: string): void;
+  
+  // Resource registration
+  registerResource(resource: MCPResource, handler: (uri: string) => Promise<{ contents: MCPResourceContent[] }>): void;
+  unregisterResource(uri: string): void;
+  
+  // Prompt registration
+  registerPrompt(prompt: MCPPrompt, handler: (args: Record<string, string>) => Promise<MCPPromptResult>): void;
+  unregisterPrompt(name: string): void;
 }
 
-export interface FileSystemToolArgs {
-  readonly operation: "read" | "write" | "list" | "delete" | "move" | "copy" | "stat" | "search";
-  readonly path: string;
-  readonly content?: string;
-  readonly targetPath?: string;
-  readonly pattern?: string;
+export interface MCPResourceContent {
+  uri: string;
+  mimeType?: string;
+  text?: string;
+  blob?: string; // base64
 }
 
-export interface TerminalToolArgs {
-  readonly operation: "exec" | "spawn" | "kill" | "list";
-  readonly command?: string;
-  readonly args?: readonly string[];
-  readonly workingDir?: string;
-  readonly environment?: Record<string, string>;
-  readonly sessionId?: string;
-  readonly processId?: string;
+export interface MCPPromptResult {
+  description?: string;
+  messages: MCPPromptMessage[];
 }
 
-export interface SandboxToolArgs {
-  readonly operation: "create" | "start" | "stop" | "exec" | "logs" | "ports";
-  readonly sessionId?: string;
-  readonly userId?: string;
-  readonly projectId?: string;
-  readonly config?: Record<string, unknown>;
-  readonly command?: readonly string[];
+export interface MCPPromptMessage {
+  role: "user" | "assistant";
+  content: MCPResourceContent;
 }
 
-export interface GitToolArgs {
-  readonly operation: "status" | "commit" | "push" | "pull" | "history" | "diff" | "branch" | "checkout";
-  readonly sessionId: string;
-  readonly message?: string;
-  readonly remote?: string;
-  readonly branch?: string;
-  readonly filepath?: string;
-}
+export function createMCPServer(config: MCPConfig): MCPServer;

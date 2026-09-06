@@ -1,32 +1,26 @@
 {
-  "name": "emergent-sh-clone",
+  "name": "emergent-clone",
   "version": "1.0.0",
+  "description": "AI-powered full-stack web application builder - Emergent.sh clone",
   "private": true,
   "workspaces": [
     "services/*",
     "frontend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:sandbox\" \"npm run dev:streamer\" \"npm run dev:vfs\" \"npm run dev:mcp\" \"npm run dev:frontend\"",
-    "dev:sandbox": "npm run dev --workspace=services/sandbox",
-    "dev:streamer": "npm run dev --workspace=services/streamer",
-    "dev:vfs": "npm run dev --workspace=services/vfs",
-    "dev:mcp": "npm run dev --workspace=services/mcp",
-    "dev:frontend": "npm run dev --workspace=frontend",
-    "test": "npm run test --workspaces",
-    "test:sandbox": "npm run test --workspace=services/sandbox",
-    "test:streamer": "npm run test --workspace=services/streamer",
-    "test:vfs": "npm run test --workspace=services/vfs",
-    "test:mcp": "npm run test --workspace=services/mcp",
-    "test:frontend": "npm run test --workspace=frontend",
-    "build": "npm run build --workspaces",
-    "lint": "npm run lint --workspaces"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0",
-    "@types/node": "^20.12.12"
+    "turbo": "^2.0.0",
+    "vitest": "^2.0.0",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0"
   },
   "engines": {
     "node": ">=20.0.0"

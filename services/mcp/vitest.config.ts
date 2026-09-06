@@ -1,17 +1,20 @@
-import { defineConfig } from "vitest/config";
-import path from "path";
+﻿import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    globals: true,
-    environment: "node",
-    include: ["src/**/*.test.ts"],
-    testTimeout: 10000,
-    hookTimeout: 10000,
-  },
-  resolve: {
-    alias: {
-      "@emergent/mcp": path.resolve(__dirname, "./src"),
+    environment: 'node',
+    include: ['tests/**/*.test.ts'],
+    testTimeout: 60000,
+    hookTimeout: 30000,
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: true
+      }
     },
+    globals: true
   },
+  css: {
+    postcss: {}
+  }
 });

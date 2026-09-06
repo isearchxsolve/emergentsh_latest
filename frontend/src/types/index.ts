@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Frontend Type Definitions
  * Shared types for the dual-pane Emergent.sh clone UI
  */
@@ -22,6 +22,7 @@ export interface ExecutionStep {
   status: "pending" | "running" | "completed" | "failed";
   startTime: Date;
   endTime?: Date;
+  duration?: number;
   output?: unknown;
 }
 
